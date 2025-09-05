@@ -1,6 +1,6 @@
 ---
 - name: Run a collection of commands and save outputs
-  hosts: customer05-bastion
+  hosts: Company1
   gather_facts: no
   become: yes
 
