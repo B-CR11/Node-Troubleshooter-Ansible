@@ -1,0 +1,36 @@
+---
+- name: Run a collection of commands and save outputs
+  hosts: customer05-bastion
+  gather_facts: no
+  become: yes
+
+  vars:
+    commands_to_run:
+      - { command: 'uptime', name: 'uptime' }
+      - { command: 'df -h', name: 'disk_usage' }
+      - { command: 'free -g', name: 'memory_usage' }
+      - { command: 'lshw', name: 'list_hardware' }
+      - { command: 'nvidia-smi', name: 'nvidia-smi' }
+      - { command: 'lsblk', name: 'list_block' }
+      - { command: 'cat /etc/os-release', name: 'get_os_version' }
+      - { command: 'lspci', name: 'get_pci_devices' }
+      - { command: 'ip a', name: 'get_network_info' }
+#      - { command: 'ip route', name: 'get_routing_info' }
+
+  tasks:
+    - name: Run all diagnostic commands
+      ansible.builtin.shell: "{{ item.command }}"
+      register: command_results
+      ignore_errors: true
+      changed_when: false
+      loop: "{{ commands_to_run }}"
+
+    - name: Save all command outputs to local files
+      ansible.builtin.copy:
+        content: "{{ item.stdout | default('COMMAND FAILED OR PRODUCED NO OUTPUT') }}"
+        dest: "./outputs/{{ inventory_hostname }}_{{ item.item.name }}.txt"
+      delegate_to: localhost
+      # We only want to run this task for results that didn't fail
+      when: not item.failed
+      # This loops over the RESULTS from the previous task
+      loop: "{{ command_results.results }}"

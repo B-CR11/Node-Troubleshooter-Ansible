@@ -1,0 +1,38 @@
+# Replace information in this hosts file as appropriate
+
+# For example, Replace <BASTION>, <IPADDR>, <HOST>, <USER> with their actual values.
+
+[Customers] # Add ":children" to the end of your Group Name if this fails
+Company1
+Company2
+
+[bastions]
+<BASTION> ansible_host=<IPADDR>
+<BASTION> ansible_host=<IPADDR>
+
+[bastions:vars]
+# Define the user and private key for connecting TO the bastions
+ansible_user=<USER>
+ansible_ssh_private_key_file=<Path/To/File>
+
+[Company1]
+<HOST>     ansible_host=<IPADDR>
+<HOST>     ansible_host=<IPADDR>
+
+[Company2]
+<HOST>     ansible_host=<IPADDR>
+<HOST>     ansible_host=<IPADDR>
+
+# --- Group Variables ---
+# These must be in a separate [group:vars] section
+
+[all:vars]
+ansible_ssh_private_key_file=<Path/To/File>
+ansible_user=<USER>
+ansible_python_interpreter=<YOUR_INTEPRETER> # This is usually /usr/bin/python3 on ubuntu
+
+[Company1:vars]
+ansible_ssh_common_args='-o ProxyCommand="<YOURPROXYCOMMAND>"'
+
+[Company2:vars]
+ansible_ssh_common_args='-o ProxyCommand="<YOURPROXYCOMMAND>"'
